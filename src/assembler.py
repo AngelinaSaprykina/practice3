@@ -60,3 +60,53 @@ def asm(program):
         result.append(fields)
 
     return result
+
+def encode_const(B, C):
+    """Переводит загрузку константы в байты"""
+    cmd = 1
+    cmd |= (B & mask(5)) << 4
+    cmd |= (C & mask(15)) << 9
+    return cmd.to_bytes(3, "little")
+
+def encode_read(B, C):
+    """Переводит чтение из памяти в байты"""
+    cmd = 5
+    cmd |= (B & mask(5)) << 4
+    cmd |= (C & mask(5)) << 9
+    return cmd.to_bytes(3, "little")
+
+def encode_write(B, C, D):
+    """Переводит запись в память в байты"""
+    cmd = 0
+    cmd |= (B & mask(5)) << 4
+    cmd |= (C & mask(9)) << 9
+    cmd |= (D & mask(5)) << 18
+    return cmd.to_bytes(3, "little")
+
+def encode_not(B, C):
+    """Переводит побитовое НЕ в байты"""
+    cmd = 15
+    cmd |= (B & mask(5)) << 4
+    cmd |= (C & mask(5)) << 9
+    return cmd.to_bytes(3, "little")
+
+def asm_bytes(program):
+    """Переводит промежуточное представление в машинный код"""
+    result = b""
+
+    for cmd in program:
+        if cmd["A"] == 1:
+            result += encode_const(cmd["B"], cmd["C"])
+
+        if cmd["A"] == 5:
+            result += encode_read(cmd["B"], cmd["C"])
+
+        if cmd["A"] == 0:
+            result += encode_write(
+                cmd["B"], cmd["C"], cmd["D"]
+            )
+
+        if cmd["A"] == 15:
+            result += encode_not(cmd["B"], cmd["C"])
+
+    return result

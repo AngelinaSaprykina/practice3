@@ -1,3 +1,8 @@
+from src.assembler import asm_bytes
+from src.assembler import encode_const
+from src.assembler import encode_read
+from src.assembler import encode_write
+from src.assembler import encode_not
 from src.assembler import asm_const
 from src.assembler import asm_read
 from src.assembler import asm_write
@@ -37,6 +42,36 @@ def practice():
     assert result[3]["A"] == 15
 
     print("Все тесты пройдены")
+
+    # Проверяем байты по примерам
+    assert list(encode_const(17, 551)) == [
+        0x11, 0x4F, 0x04
+    ]
+
+    assert list(encode_read(15, 5)) == [
+        0xF5, 0x0A, 0x00
+    ]
+
+    assert list(encode_write(24, 13, 11)) == [
+        0x80, 0x1B, 0x2C
+    ]
+
+    assert list(encode_not(0, 8)) == [
+        0x0F, 0x10, 0x00
+    ]
+
+    # Проверяем машинный код всей программы
+    machine_code = asm_bytes(result)
+
+    expected = [
+        0x11, 0x4F, 0x04,
+        0xF5, 0x0A, 0x00,
+        0x80, 0x1B, 0x2C,
+        0x0F, 0x10, 0x00
+    ]
+
+    assert list(machine_code) == expected
+    assert len(machine_code) == 12
 
 if __name__ == "__main__":
     practice()

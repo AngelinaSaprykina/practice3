@@ -1,7 +1,7 @@
 import argparse
 import json
 
-from src.assembler import asm
+from src.assembler import asm, asm_bytes
 
 def main():
     parser = argparse.ArgumentParser(
@@ -20,6 +20,10 @@ def main():
 
         program = data["program"]
         result = asm(program)
+        machine_code = asm_bytes(result)
+
+        with open(args.output, "wb") as file:
+            file.write(machine_code)
 
     except (OSError, ValueError, KeyError, TypeError) as error:
         parser.error(str(error))
@@ -30,7 +34,15 @@ def main():
                 f"{key}={value}" for key, value in cmd.items()
             ))
 
+        print("Машинный код:")
+
+        for i in range(0, len(machine_code), 3):
+            command = machine_code[i:i + 3]
+            print(", ".join(f"0x{b:02X}" for b in command))
+
     print("Команд обработано:", len(result))
+    print("Размер файла:", len(machine_code), "байт")
+    print("Файл сохранен:", args.output)
 
 if __name__ == "__main__":
     main()

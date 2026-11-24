@@ -51,7 +51,7 @@ def execute(bytecode):
             D = fields["D"]
             mem[reg[D] + C] = reg[B]
         elif A == 15:
-            raise ValueError("Команда not относится к четвертому этапу")
+            mem[reg[C]] = ~reg[B]
 
     return reg, mem
 
